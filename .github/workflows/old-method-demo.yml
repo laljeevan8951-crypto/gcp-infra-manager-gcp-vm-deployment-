@@ -1,26 +1,30 @@
 name: "Demo: SA Key Method (The Old Way)"
 
 on:
-  workflow_dispatch: # Allows manual run for the demo
+  workflow_dispatch:
 
 jobs:
-  verify-identity:
+  terraform-deploy:
     runs-on: ubuntu-latest
+    # This line tells ALL steps to run inside the infra folder
+    defaults:
+      run:
+        working-directory: ./infra
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ❌ THE "OLD" PART: Using the static key from GitHub Secrets
-      - name: Authenticate using Service Account Key
+      - name: Authenticate to GCP
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-      # THIS STEP PROVES THE IDENTITY TO YOUR TEAM
-      - name: 'Verify Identity'
-        run: |
-          echo "Current Identity Logged in via Secret Key:"
-          gcloud auth list
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
