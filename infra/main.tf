@@ -29,8 +29,6 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 # Allow RDP to Windows VMs (TCP 3389)
-# For a quick test this is open to the internet.
-# Later you should lock this down to your public IP.
 resource "google_compute_firewall" "allow_rdp" {
   name    = "${var.name_prefix}-allow-rdp"
   network = google_compute_network.vpc.name
@@ -41,8 +39,7 @@ resource "google_compute_firewall" "allow_rdp" {
   }
 
   source_ranges = ["0.0.0.0/0"]
-
-  target_tags = ["rdp"]
+  target_tags   = ["rdp"]
 }
 
 # Windows VMs
@@ -53,6 +50,15 @@ resource "google_compute_instance" "vm" {
   zone         = var.zone
 
   tags = ["rdp"]
+
+  # --- FIX STARTS HERE ---
+  # This block enables Secure Boot to satisfy your Org Policy
+  shielded_instance_config {
+    enable_secure_boot          = true
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
+  }
+  # --- FIX ENDS HERE ---
 
   boot_disk {
     initialize_params {
