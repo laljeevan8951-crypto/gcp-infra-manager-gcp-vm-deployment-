@@ -1,0 +1,26 @@
+name: "Demo: SA Key Method (The Old Way)"
+
+on:
+  workflow_dispatch: # Allows manual run for the demo
+
+jobs:
+  verify-identity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ❌ THE "OLD" PART: Using the static key from GitHub Secrets
+      - name: Authenticate using Service Account Key
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      # THIS STEP PROVES THE IDENTITY TO YOUR TEAM
+      - name: 'Verify Identity'
+        run: |
+          echo "Current Identity Logged in via Secret Key:"
+          gcloud auth list
