@@ -17,7 +17,7 @@ variable "zone" {
 
 variable "name_prefix" {
   type        = string
-  default     = "imtest"
+  default     = "gcpvm-im"
   description = "Prefix for resource names"
 }
 
